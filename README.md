@@ -4,6 +4,7 @@ Author - Lucas Matheson
 Description - This game is a final project for Discrete Math (COS 280). There are multiple goals with this project.
 The first one is to explore deep learning models, along with the mathematics behind them. With this model, I look for it to learn to 
 navigate the track and find the quickest way to win. This will be attempted by multple different algorithms. (These are to be tested). 
+
 My second goal is to expand my current understanding of the C# language. Unity scripts run off of C#, a language I look to learn and use in my 
 career. This project allows me to expand my current understanding of C#. 
 
