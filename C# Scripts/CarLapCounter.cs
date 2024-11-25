@@ -9,7 +9,6 @@ public class CarLapCounter : MonoBehaviour
    int numberOfPassedCheckpoints = 0;
    int lapsCompleted = 0;
    const int lapsToComplete = 3;
-
     bool isRaceCompleted = false;
 //Event, can tell other scripts that something happened
 public event Action<CarLapCounter> OnPassCheckpoint;

@@ -11,11 +11,12 @@ public class TopDownCarController : MonoBehaviour
 
     float accelerationInput = 0;
     float steeringInput = 0; 
-float velocityVsUp = 0;
+    float velocityVsUp = 0;
     float rotationAngle = 0;
     Rigidbody2D carRigidbody2D;
 
     void Awake() {
+        // Simplely grabs the Rigidbody2D component from Unity
         carRigidbody2D = GetComponent<Rigidbody2D>();
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -44,9 +45,9 @@ float velocityVsUp = 0;
         float minSpeedBeforeAllowTurningFactor = (carRigidbody2D.linearVelocity.magnitude / 8);
         minSpeedBeforeAllowTurningFactor = Mathf.Clamp01(minSpeedBeforeAllowTurningFactor);
 
-        //updates rotation upon turning
+        // updates rotation upon turning
         rotationAngle -= steeringInput * turnFactor;
-        //apply steering by rotating the car object
+        // apply steering by rotating the car object
         carRigidbody2D.MoveRotation(rotationAngle);
     }
 
@@ -61,11 +62,9 @@ void KillOrthogonalVelocity()
         Vector2 rightVelocity = transform.right * Vector2.Dot(carRigidbody2D.linearVelocity, transform.right);
 
         carRigidbody2D.linearVelocity = forwardVelocity + rightVelocity * driftFactor;
-
-
     }
 
-//Controls the "Engine" of the car. Movement forward and backwards
+// Controls the "Engine" of the car. Movement forward and backwards
      void ApplyEngineForce() {
     velocityVsUp = Vector2.Dot(transform.up, carRigidbody2D.linearVelocity);
 

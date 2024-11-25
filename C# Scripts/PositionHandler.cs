@@ -22,8 +22,10 @@ public class PositionHandler : MonoBehaviour
 
     }
 
+    //This updates the leaderboard to say who is in the lead
     void OnPassCheckpoint(CarLapCounter carLapCounter)
     {
+        
         carLapCounters = carLapCounters.OrderByDescending(s => s.GetNumberOfCheckpointsPassed()).ThenBy(s => s.GetTimeAtLastCheckpoint()).ToList();
 
         int carPosition = carLapCounters.IndexOf(carLapCounter) + 1;
