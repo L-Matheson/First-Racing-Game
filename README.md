@@ -12,6 +12,9 @@ Currently, the game contains an AI model that can either traverse a directed gra
 
 Once this project is complete, it is looked to be expanded on as a personal project to be a full game
 
+Here is a current demo of the game. It contains a red car and a blue car. The blue car is the AI model, following four nodes located at each corner of the track.
+The red car is a user player, which is me in this case. 
+
 
 https://github.com/user-attachments/assets/2a5683f4-8254-4a3e-b8f6-be23937a82b1
 
