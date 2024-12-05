@@ -38,7 +38,14 @@ public class TopDownCarController : MonoBehaviour
 
         ApplySteering();
     }
+public float GetCurrentSpeed()
+{
 
+    // Speed is the magnitude of the velocity vector
+    // This method was added after inputing manually the speed using this equation
+    // applying this method to all speed accesses is a later task
+    return carRigidbody2D.linearVelocity.magnitude;
+}
      void ApplySteering()
     {
         // limit cars ability to turn when not moving
