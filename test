@@ -1,0 +1,109 @@
+<template>
+  <div>
+    <h2>Total Spending Per Month</h2>
+    <line-chart :chart-data="filteredChartData" :options="chartOptions" />
+
+    <div style="margin-top: 20px;">
+      <vue-slider
+        v-model="selectedYears"
+        :min="minYear"
+        :max="maxYear"
+        :interval="1"
+        :tooltip="true"
+        range
+        @change="updateChart"
+      />
+      <p>Selected Years: {{ selectedYears[0] }} to {{ selectedYears[1] }}</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent, ref, computed } from "vue";
+import { Line } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
+import VueSlider from "vue-slider-component";
+import "vue-slider-component/theme/default.css";
+
+// Register Chart.js components
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale);
+
+export default defineComponent({
+  name: "SpendingGraph",
+  components: {
+    LineChart: Line,
+    VueSlider,
+  },
+  setup() {
+    // Sample data: Spending per month across years
+    const rawData = [
+      { year: 2020, month: "January", spending: 500 },
+      { year: 2020, month: "February", spending: 600 },
+      { year: 2021, month: "January", spending: 700 },
+      { year: 2021, month: "February", spending: 800 },
+      { year: 2022, month: "January", spending: 900 },
+      { year: 2022, month: "February", spending: 1000 },
+    ];
+
+    const minYear = Math.min(...rawData.map((d) => d.year));
+    const maxYear = Math.max(...rawData.map((d) => d.year));
+    const selectedYears = ref([minYear, maxYear]);
+
+    const filteredChartData = computed(() => {
+      const filteredData = rawData.filter(
+        (d) => d.year >= selectedYears.value[0] && d.year <= selectedYears.value[1]
+      );
+
+      const months = Array.from(new Set(filteredData.map((d) => d.month)));
+      const datasets = [];
+
+      for (let year = selectedYears.value[0]; year <= selectedYears.value[1]; year++) {
+        const yearData = filteredData.filter((d) => d.year === year);
+        const spendingByMonth = months.map(
+          (month) => yearData.find((d) => d.month === month)?.spending || 0
+        );
+
+        datasets.push({
+          label: `Year ${year}`,
+          data: spendingByMonth,
+          fill: false,
+          borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // Random color
+          tension: 0.1,
+        });
+      }
+
+      return {
+        labels: months,
+        datasets,
+      };
+    });
+
+    const chartOptions = {
+      responsive: true,
+      plugins: {
+        legend: { position: "top" },
+        title: { display: true, text: "Spending Per Month" },
+      },
+    };
+
+    const updateChart = () => {
+      // Trigger a re-computation of filteredChartData
+    };
+
+    return { filteredChartData, chartOptions, selectedYears, minYear, maxYear, updateChart };
+  },
+});
+</script>
+
+<style>
+/* Add your styles here */
+</style>
