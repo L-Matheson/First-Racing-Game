@@ -31,7 +31,7 @@ public class CarAIHandler : MonoBehaviour
     private float minVelocityThreshold = 0.1f; // Minimum velocity to avoid being considered stuck
     private bool isBackingUp = false;
     private float backingUpTimer = 0f;
-    private float maxBackingUpTime = 1.5f; // Maximum time spent backing up
+    private float maxBackingUpTime = 0.4f; // Maximum time spent backing up
 
     void Awake()
     {
@@ -75,8 +75,6 @@ public class CarAIHandler : MonoBehaviour
             inputVector.x = TurnTowardTarget();
             inputVector.y = ApplyThrottleOrBrake(inputVector.x);
 
-            // Wall avoidance logic
-            AvoidWalls(ref inputVector);
         }
 
         topDownCarController.SetInputVector(inputVector);
@@ -147,14 +145,14 @@ public class CarAIHandler : MonoBehaviour
 
             float distanceToTarget = (targetPosition - transform.position).magnitude;
 
-            // This is an interesting value as it controls how much the car needs to turn 
+            // This controls how much the car needs to turn 
             // depending on how close it is to another car
             float driveToTargetInfluence = 6.0f / distanceToTarget;
 
             driveToTargetInfluence = Mathf.Clamp(driveToTargetInfluence, 0.30f, 1.0f);
 
             float avoidanceInfluence = 1.0f - driveToTargetInfluence;
-
+            // allows for smoother turning
             avoidanceVectorLerped = Vector2.Lerp(avoidanceVectorLerped, avoidanceVector, Time.fixedDeltaTime * 4);
 
             // avoidence vector
@@ -172,7 +170,7 @@ public class CarAIHandler : MonoBehaviour
         newVectorToTarget = vectorToTarget;
     }
 
-    // Detect if the car is stuck and recover by backing up
+    // Sometimes the car will get stuck while traversing the graph, this will back the car up quickly
     private void CheckIfStuckAndFix()
     {
         float currentSpeed = topDownCarController.GetCurrentSpeed();
@@ -183,7 +181,6 @@ public class CarAIHandler : MonoBehaviour
 
             if (stuckDetectionTimer >= stuckThresholdTime)
             {
-                Debug.Log("Car is stuck! Initiating backup...");
                 isBackingUp = true;
                 backingUpTimer = 0f;
             }
@@ -194,7 +191,6 @@ public class CarAIHandler : MonoBehaviour
         }
     }
 
-    // Back up when stuck
     private Vector2 BackUp()
     {
         backingUpTimer += Time.fixedDeltaTime;
@@ -206,43 +202,39 @@ public class CarAIHandler : MonoBehaviour
         }
 
         float steerDirection = UnityEngine.Random.Range(-1f, 1f);
-        return new Vector2(steerDirection, -1f);
+        return new Vector2(1f, -1f);
     }
 
-    // Detect and avoid walls
-    private void AvoidWalls(ref Vector2 inputVector)
-    {
-        float rayDistance = 5f;
-        Vector2[] rayDirections = { transform.up, transform.up + transform.right * 0.5f, transform.up - transform.right * 0.5f };
+    
 
-        foreach (var direction in rayDirections)
+ void FollowWaypoints()
+{   // base case, if there is no current node, the car will find the nearest node
+    if (currentWaypoint == null)
+        currentWaypoint = FindClosestWayPoint();
+   
+        targetPosition = currentWaypoint.transform.position;
+
+        float distanceToWaypoint = (targetPosition - transform.position).magnitude;
+
+        if (distanceToWaypoint <= currentWaypoint.minDistanceToReachWaypoint)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, rayDistance, LayerMask.GetMask("Wall"));
-
-            if (hit.collider != null)
+            WaypointNode shortestWaypoint = null;
+            float shortestDistance = float.MaxValue;
+            foreach (var nextWaypoint in currentWaypoint.nextWayPointNode)
             {
-                float avoidSteer = Vector2.SignedAngle(transform.up, hit.point - (Vector2)transform.position);
-                inputVector.x = Mathf.Clamp(-avoidSteer / 45f, -1f, 1f);
-                break;
-            }
-        }
-    }
+                    float distanceToNext = Vector3.Distance(transform.position, nextWaypoint.transform.position);
+                    if (distanceToNext < shortestDistance)
+                    {
+                        shortestDistance = distanceToNext;
+                        shortestWaypoint = nextWaypoint;
+                    }
+                }
 
-    void FollowWaypoints()
-    {
-        if (currentWaypoint == null)
-            currentWaypoint = FindClosestWayPoint();
-
-        if (currentWaypoint != null)
-        {
-            targetPosition = currentWaypoint.transform.position;
-            float distanceToWaypoint = (targetPosition - transform.position).magnitude;
-            if (distanceToWaypoint <= currentWaypoint.minDistanceToReachWaypoint)
-            {
-                currentWaypoint = currentWaypoint.nextWayPointNode[UnityEngine.Random.Range(0, currentWaypoint.nextWayPointNode.Length)];
-            }
+            currentWaypoint = shortestWaypoint;
         }
-    }
+    
+}
+
 
     WaypointNode FindClosestWayPoint()
     {
