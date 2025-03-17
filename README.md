@@ -18,3 +18,8 @@ The red car is a user player, which is me in this case.
 
 https://github.com/user-attachments/assets/2a5683f4-8254-4a3e-b8f6-be23937a82b1
 
+
+## Here is the final product, a greedy algorithm that will always choose the shortest path
+
+https://github.com/user-attachments/assets/fc36fa88-a974-4b3f-b454-cee8a136ba99
+
